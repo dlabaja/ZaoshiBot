@@ -7,5 +7,5 @@ To run it yourself, create config.json file in the 'Zaoshi' folder and put this 
 ```json
   "token": "bot token",
   "debugToken": "token for debug version of the bot",
-  "testGuilds": [uids of guild you want to debug in (int64)]
+  "testGuilds": ["uids of guild you want to debug in (int64)"]
 ```
