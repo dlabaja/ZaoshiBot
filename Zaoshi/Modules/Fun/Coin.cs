@@ -1,4 +1,5 @@
 using Discord.Interactions;
+using System.Threading.Tasks;
 
 namespace Zaoshi.Modules.Fun;
 

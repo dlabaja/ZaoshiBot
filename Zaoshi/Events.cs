@@ -1,4 +1,6 @@
 using Discord.WebSocket;
+using System;
+using System.Threading.Tasks;
 using Zaoshi.Modules;
 
 namespace Zaoshi;
