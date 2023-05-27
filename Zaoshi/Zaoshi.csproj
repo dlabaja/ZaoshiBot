@@ -18,7 +18,10 @@
 
     <ItemGroup>
       <None Remove="Config\config.json" />
-      <EmbeddedResource Include="Config\config.json">
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="config.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
     </ItemGroup>
