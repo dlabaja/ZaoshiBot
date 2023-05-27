@@ -1,83 +1,72 @@
 ﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Zaoshi;
 
-internal class Bot
+public class Bot
 {
-    private readonly DiscordSocketClient _client;
+    private readonly IConfiguration _configuration;
+    private readonly IServiceProvider _services;
+
+    private readonly DiscordSocketConfig _socketConfig = new DiscordSocketConfig{
+        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
+        AlwaysDownloadUsers = true
+    };
 
     private Bot()
     {
-        DiscordSocketConfig config = new DiscordSocketConfig{
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
-        };
-        _client = new DiscordSocketClient(config);
-        _client.Log += LogAsync;
-        _client.Ready += ReadyAsync;
-        _client.MessageReceived += MessageReceivedAsync;
-        _client.InteractionCreated += InteractionCreatedAsync;
+        Console.WriteLine($"Debug mode: {IsDebug()}");
+        _configuration = new ConfigurationBuilder()
+            .AddJsonFile("Config/config.json")
+            .Build();
+        _services = new ServiceCollection()
+            .AddSingleton(_socketConfig)
+            .AddSingleton(_configuration)
+            .AddSingleton<DiscordSocketClient>()
+            .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+            .AddSingleton<InteractionHandler>()
+            .BuildServiceProvider();
     }
 
-    private static void Main()
-        => new Bot()
-            .MainAsync()
+    private static void Main(string[] args)
+        => new Bot().RunAsync()
             .GetAwaiter()
             .GetResult();
 
-    async private Task MainAsync()
+    async private Task RunAsync()
     {
-        await _client.LoginAsync(TokenType.Bot, Secrets.token);
-        await _client.StartAsync();
+        DiscordSocketClient client = _services.GetRequiredService<DiscordSocketClient>();
+
+        client.Log += LogAsync;
+        client.MessageReceived += Events.OnMessageReceived;
+
+        // Here we can initialize the service that will register and execute our commands
+        await _services.GetRequiredService<InteractionHandler>()
+            .InitializeAsync();
+
+        // Bot token can be provided from the Configuration object we set up earlier
+        await client.LoginAsync(TokenType.Bot, IsDebug() ? _configuration["debugToken"] : _configuration["token"]);
+        await client.StartAsync();
+
+        // Never quit the program until manually forced to.
         await Task.Delay(Timeout.Infinite);
     }
 
-    private static Task LogAsync(LogMessage log)
+    private static Task LogAsync(LogMessage message)
     {
-        Console.WriteLine(log.ToString());
+        Console.WriteLine(message.ToString());
         return Task.CompletedTask;
     }
 
-    private Task ReadyAsync()
+    public static bool IsDebug()
     {
-        Console.WriteLine($"{_client.CurrentUser} is connected!");
-        return Task.CompletedTask;
-    }
-
-    // This is not the recommended way to write a bot - consider
-    // reading over the Commands Framework sample.
-    async private Task MessageReceivedAsync(SocketMessage message)
-    {
-        // The bot should never respond to itself.
-        if (message.Author.Id == _client.CurrentUser.Id)
-            return;
-
-        if (message.Content == "!ping")
-        {
-            // Create a new ComponentBuilder, in which dropdowns & buttons can be created.
-            ComponentBuilder? cb = new ComponentBuilder()
-                .WithButton("Click me!", "unique-id");
-
-            // Send a message with content 'pong', including a button.
-            // This button needs to be build by calling .Build() before being passed into the call.
-            await message.Channel.SendMessageAsync("pong!", components: cb.Build());
-        }
-    }
-
-    // For better functionality & a more developer-friendly approach to handling any kind of interaction, refer to:
-    // https://discordnet.dev/guides/int_framework/intro.html
-    async private Task InteractionCreatedAsync(SocketInteraction interaction)
-    {
-        // safety-casting is the best way to prevent something being cast from being null.
-        // If this check does not pass, it could not be cast to said type.
-        if (interaction is SocketMessageComponent component)
-        {
-            // Check for the ID created in the button mentioned above.
-            if (component.Data.CustomId == "unique-id")
-                await interaction.RespondAsync("Thank you for clicking my button!");
-
-            else
-                Console.WriteLine("An ID has been received that has no handler!");
-        }
+        #if DEBUG
+        return true;
+        #else
+            return false;
+        #endif
     }
 }
