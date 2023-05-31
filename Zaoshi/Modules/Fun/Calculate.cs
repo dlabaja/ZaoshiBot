@@ -1,19 +1,16 @@
 using Discord.Interactions;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Zaoshi.Modules.Fun;
 
 public class Calculate : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("calculate", "Write an expression and let the bot calculate it. Example: (cos(5*6)+abs(-8))/π+log(1000)%5")]
-    public async Task CalculateCmd(string expression)
+    public async Task Command(string expression)
     {
-        await RespondAsync(new PostfixCalculator().CalculatePostfix(new PostfixCalculator().InfixToPostfix(new StringBuilder(expression))).ToString(), ephemeral: true);
+        await RespondAsync(new PostfixCalculator().CalculatePostfix(new PostfixCalculator().InfixToPostfix(new StringBuilder(expression))).ToString());
     }
 
     private class PostfixCalculator

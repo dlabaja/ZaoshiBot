@@ -1,13 +1,12 @@
 using Discord.Interactions;
-using System.Threading.Tasks;
 
 namespace Zaoshi.Modules.Fun;
 
 public class Coin : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("coin", "Flip a coin to see what you get")]
-    public async Task CoinCmd()
+    public async Task Command()
     {
-        await RespondAsync(new System.Random().Next(2) == 0 ? "Head" : "Tails", ephemeral: true);
+        await RespondAsync(new System.Random().Next(2) == 0 ? "Head" : "Tails");
     }
 }

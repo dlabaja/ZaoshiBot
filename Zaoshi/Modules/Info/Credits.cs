@@ -1,13 +1,12 @@
 using Discord;
 using Discord.Interactions;
-using System.Threading.Tasks;
 
 namespace Zaoshi.Modules.Info;
 
 public class Credits : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("credits", "Shows people who made the bot")]
-    public async Task CreditsCmd()
+    public async Task Command()
     {
         EmbedBuilder embed = new EmbedBuilder{
             Title = "The ones responsible for this"

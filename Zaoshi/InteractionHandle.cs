@@ -2,9 +2,7 @@ using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Zaoshi;
 
@@ -34,6 +32,18 @@ public class InteractionHandler
 
         // Process the InteractionCreated payloads to execute Interactions commands
         _client.InteractionCreated += HandleInteraction;
+        _handler.InteractionExecuted += HandleInteractionExecuted;
+    }
+
+    // Returns any error to the user
+    async private static Task HandleInteractionExecuted(ICommandInfo commandInfo, IInteractionContext context, IResult result)
+    {
+        var errorAliases = new Dictionary<string, string>{
+            {"The server responded with error 50013: Missing Permissions", "Missing Permissions"},
+            {"Offset cannot be more than 28 days from the current date. (Parameter 'span')", "Maximum pause time is 28 days"}
+        };
+
+        await context.Interaction.RespondAsync(errorAliases.TryGetValue(result.ErrorReason, out string? error) ? error : result.ErrorReason, ephemeral: true);
     }
 
     private static Task LogAsync(LogMessage log)
@@ -57,28 +67,7 @@ public class InteractionHandler
 
     async private Task HandleInteraction(SocketInteraction interaction)
     {
-        try
-        {
-            // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
-            SocketInteractionContext context = new SocketInteractionContext(_client, interaction);
-
-            // Execute the incoming command.
-            IResult? result = await _handler.ExecuteCommandAsync(context, _services);
-
-            if (!result.IsSuccess)
-                switch (result.Error)
-                {
-                    case InteractionCommandError.UnmetPrecondition:
-                        // implement
-                        break;
-                }
-        }
-        catch
-        {
-            // If Slash Command execution fails it is most likely that the original interaction acknowledgement will persist. It is a good idea to delete the original
-            // response, or at least let the user know that something went wrong during the command execution.
-            if (interaction.Type is InteractionType.ApplicationCommand)
-                await interaction.GetOriginalResponseAsync().ContinueWith(async msg => await msg.Result.DeleteAsync());
-        }
+        SocketInteractionContext context = new SocketInteractionContext(_client, interaction);
+        await _handler.ExecuteCommandAsync(context, _services);
     }
 }
