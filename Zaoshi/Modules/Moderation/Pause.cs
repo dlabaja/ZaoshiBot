@@ -1,5 +1,4 @@
 using Discord;
-using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Zaoshi.Utils;
@@ -10,8 +9,7 @@ public class Pause : InteractionModuleBase<SocketInteractionContext>
 {
     public enum TimeFormat { Minutes, Hours, Days, Forever }
 
-    [SlashCommand("pause", "Mutes (pauses) a user from the server")]
-    [Alias("mute")]
+    [SlashCommand("pause", "Pauses (mutes) a user from the server")]
     [RequireUserPermissions(new[]{GuildPermission.Administrator, GuildPermission.KickMembers, GuildPermission.BanMembers, GuildPermission.ModerateMembers})]
     public async Task Command(SocketUser user, TimeFormat timeFormat, int time)
     {

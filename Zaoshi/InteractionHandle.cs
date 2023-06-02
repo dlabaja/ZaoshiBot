@@ -38,6 +38,7 @@ public class InteractionHandler
     // Returns any error to the user
     async private static Task HandleInteractionExecuted(ICommandInfo commandInfo, IInteractionContext context, IResult result)
     {
+        if (result.ErrorReason == null) return;
         var errorAliases = new Dictionary<string, string>{
             {"The server responded with error 50013: Missing Permissions", "Missing Permissions"},
             {"Offset cannot be more than 28 days from the current date. (Parameter 'span')", "Maximum pause time is 28 days"}

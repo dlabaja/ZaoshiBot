@@ -20,7 +20,7 @@ public class Bot
     {
         Console.WriteLine($"Debug mode: {IsDebug()}");
         _configuration = new ConfigurationBuilder()
-            .AddJsonFile("config.json")
+            .AddJsonFile(Path.Combine(Directory.GetCurrentDirectory(), "config.json"))
             .Build();
         _services = new ServiceCollection()
             .AddSingleton(_socketConfig)

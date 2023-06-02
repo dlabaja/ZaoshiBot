@@ -7,7 +7,7 @@ namespace Zaoshi.Modules.Fun;
 
 public class Calculate : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("calculate", "Write an expression and let the bot calculate it. Example: (cos(5*6)+abs(-8))/π+log(1000)%5")]
+    [SlashCommand("calculate", "Write an expression and let the bot calculate it.\n Example: (cos(5*6)+abs(-8))/π+log(1000)%5")]
     public async Task Command(string expression)
     {
         await RespondAsync(new PostfixCalculator().CalculatePostfix(new PostfixCalculator().InfixToPostfix(new StringBuilder(expression))).ToString());
