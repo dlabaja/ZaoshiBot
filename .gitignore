@@ -1,4 +1,7 @@
-/config.json
+config.json
+/published
+/publish.sh
+
 # Common IntelliJ Platform excludes
 
 # User specific

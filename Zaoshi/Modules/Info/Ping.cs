@@ -1,6 +1,6 @@
 using Discord.Interactions;
 
-namespace Zaoshi;
+namespace Zaoshi.Modules.Info;
 
 public class Ping : InteractionModuleBase<SocketInteractionContext>
 {

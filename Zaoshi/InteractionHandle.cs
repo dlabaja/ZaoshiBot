@@ -1,7 +1,6 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
 namespace Zaoshi;
@@ -9,16 +8,14 @@ namespace Zaoshi;
 public class InteractionHandler
 {
     private readonly DiscordSocketClient _client;
-    private readonly IConfiguration _configuration;
     private readonly InteractionService _handler;
     private readonly IServiceProvider _services;
 
-    public InteractionHandler(DiscordSocketClient client, InteractionService handler, IServiceProvider services, IConfiguration config)
+    public InteractionHandler(DiscordSocketClient client, InteractionService handler, IServiceProvider services)
     {
         _client = client;
         _handler = handler;
         _services = services;
-        _configuration = config;
     }
 
     public async Task InitializeAsync()
@@ -44,7 +41,7 @@ public class InteractionHandler
             {"Offset cannot be more than 28 days from the current date. (Parameter 'span')", "Maximum pause time is 28 days"}
         };
 
-        await context.Interaction.RespondAsync(errorAliases.TryGetValue(result.ErrorReason, out string? error) ? error : result.ErrorReason, ephemeral: true);
+        await context.Interaction.RespondAsync(errorAliases.TryGetValue(result.ErrorReason, out var error) ? error : result.ErrorReason, ephemeral: true);
     }
 
     private static Task LogAsync(LogMessage log)
@@ -58,9 +55,9 @@ public class InteractionHandler
         // Context & Slash commands can be automatically registered, but this process needs to happen after the client enters the READY state.
         // Since Global Commands take around 1 hour to register, we should use a test guild to instantly update and test our commands.
         if (Bot.IsDebug())
-            foreach (IConfigurationSection key in _configuration.GetSection("testGuilds").GetChildren())
+            foreach (var guildId in Config.testGuilds)
             {
-                await _handler.RegisterCommandsToGuildAsync(ulong.Parse(key.Value!));
+                await _handler.RegisterCommandsToGuildAsync(guildId);
             }
         else
             await _handler.RegisterCommandsGloballyAsync();
@@ -68,7 +65,7 @@ public class InteractionHandler
 
     async private Task HandleInteraction(SocketInteraction interaction)
     {
-        SocketInteractionContext context = new SocketInteractionContext(_client, interaction);
+        var context = new SocketInteractionContext(_client, interaction);
         await _handler.ExecuteCommandAsync(context, _services);
     }
 }

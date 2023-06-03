@@ -1,7 +1,7 @@
 using Discord;
 using Discord.Interactions;
 
-namespace Zaoshi.Utils;
+namespace Zaoshi.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class RequireUserPermissionsAttribute : PreconditionAttribute
@@ -17,7 +17,7 @@ public class RequireUserPermissionsAttribute : PreconditionAttribute
     {
         try
         {
-            IGuildUser user = context.User as IGuildUser ?? throw new InvalidOperationException("Command must be used in a guild channel");
+            var user = context.User as IGuildUser ?? throw new InvalidOperationException("Command must be used in a guild channel");
             if (!GuildPermissions.Intersect(user.GuildPermissions.ToList()).Any()) throw new Exception("Missing Permissions");
             return await Task.FromResult(PreconditionResult.FromSuccess());
         }

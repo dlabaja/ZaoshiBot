@@ -1,7 +1,7 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Zaoshi.Utils;
+using Zaoshi.Attributes;
 
 namespace Zaoshi.Modules.Moderation;
 

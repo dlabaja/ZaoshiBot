@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Config\config.json" />
+        <None Remove="Config\config.json" />
     </ItemGroup>
 
     <ItemGroup>
