@@ -6,11 +6,12 @@ namespace Zaoshi;
 public class Command : InteractionModuleBase<SocketInteractionContext>
 {
     [SlashCommand("", "")]
-    public async Task Cmd()
+    public async Task Command()
     {
         await RespondAsync();
     }
 }
 */
+
 
 
