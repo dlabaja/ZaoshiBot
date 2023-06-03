@@ -2,7 +2,7 @@
 
 Modern and open source Discord bot written in C#.
 
-To run it yourself, create config.json file next to the executable and put this into it:
+To run it yourself, create config.json file next to the executable and put this into it (or just run one of the releases):
 
 ```json
 {
