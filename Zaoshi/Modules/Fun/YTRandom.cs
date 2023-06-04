@@ -9,8 +9,9 @@ public class YTRandom : InteractionModuleBase<SocketInteractionContext>
     [SlashCommand("yt-random", "Sends a random (and most likely pretty weird) YouTube video")]
     public async Task Command()
     {
+        await DeferAsync();
         var video = await GetVideo();
-        await RespondAsync(@$"**Views: **{video["viewCount"]?.GetValue<int>()}
+        await FollowupAsync(@$"**Views: **{video["viewCount"]?.GetValue<int>()}
 **Published: **{DateTimeOffset.FromUnixTimeSeconds(video["published"]!.GetValue<long>()).UtcDateTime}");
         await ReplyAsync($"https://www.youtube.com/watch?v={video["videoId"]?.GetValue<string>()}");
     }

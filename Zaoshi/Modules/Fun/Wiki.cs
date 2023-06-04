@@ -32,15 +32,17 @@ public class Wiki : InteractionModuleBase<SocketInteractionContext>
     [SlashCommand("wiki", "Find an article on the Wikipedia")]
     public async Task Command(string query, Language language = Language.EN)
     {
+        await DeferAsync();
         var client = new WikipediaClient();
         var req = new WikiSearchRequest(query){
-            Limit = 1,
+            Limit = 2,
             WikiLanguage = _languages[language]
         };
 
-        var response = (await client.SearchAsync(req)).QueryResult?.SearchResults.FirstOrDefault() ?? throw new Exception("Cannot find anything");
+        var response = (await client.SearchAsync(req)).QueryResult?.SearchResults ?? throw new Exception("Cannot find anything");
 
-        await RespondAsync("Here is your Wikipedia article");
-        await ReplyAsync($"{response.Url.ToString().Replace(" ", "%20")}");
+        await FollowupAsync("Here is your Wikipedia article");
+        if (!response[0].Snippet!.Contains("may refer to:")) await ReplyAsync($"{response[0].Url.ToString().Replace(" ", "%20")}"); // ignore reference pages
+        else await ReplyAsync($"{response[1].Url.ToString().Replace(" ", "%20")}");
     }
 }

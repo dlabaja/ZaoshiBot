@@ -10,23 +10,31 @@ public class Help : InteractionModuleBase<SocketInteractionContext>
     {
         Fun,
         Info,
-        Moderation
+        Moderation,
+        Games
     }
 
     [SlashCommand("help", "Lists all available commands in certain category")]
     public async Task Command(CommandCategories category)
     {
-        EmbedBuilder embed = new EmbedBuilder();
+        var embed = new EmbedBuilder();
         var commands = Assembly.GetExecutingAssembly().GetExportedTypes()
             .Where(t => t.Namespace == $"Zaoshi.Modules.{category}");
 
-        foreach (Type type in commands)
+        foreach (var type in commands)
         {
             var methods = type.GetMethods()
                 .Where(m => m.GetCustomAttributes(typeof(SlashCommandAttribute), true).Length > 0);
-            foreach (MethodInfo item in methods)
+            foreach (var item in methods)
             {
-                SlashCommandAttribute attribute = item.GetCustomAttribute<SlashCommandAttribute>()!;
+                var attribute = item.GetCustomAttribute<SlashCommandAttribute>()!;
+                var groupAttribute = item.DeclaringType?.GetCustomAttribute<GroupAttribute>();
+                if (groupAttribute != null)
+                {
+                    embed.AddField($"/{groupAttribute.Name} {attribute.Name}", $"- {attribute.Description}");
+                    continue;
+                }
+
                 embed.AddField($"/{attribute.Name}", $"- {attribute.Description}");
             }
         }
