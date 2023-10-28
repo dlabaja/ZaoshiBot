@@ -23,24 +23,24 @@ public class Calculate : InteractionModuleBase<SocketInteractionContext>
             {"+", () => _buffer.Pop() + _buffer.Pop()},{
                 "-", () =>
                 {
-                    double num2 = _buffer.Pop();
-                    double num1 = _buffer.Pop();
+                    var num2 = _buffer.Pop();
+                    var num1 = _buffer.Pop();
                     return num1 - num2;
                 }
             },
             {"*", () => _buffer.Pop() * _buffer.Pop()},{
                 "/", () =>
                 {
-                    double num2 = _buffer.Pop();
-                    double num1 = _buffer.Pop();
+                    var num2 = _buffer.Pop();
+                    var num1 = _buffer.Pop();
                     if (num2 == 0) ThrowException("Cannot divide by zero");
                     return num1 / num2;
                 }
             },{
                 "%", () =>
                 {
-                    double num2 = _buffer.Pop();
-                    double num1 = _buffer.Pop();
+                    var num2 = _buffer.Pop();
+                    var num1 = _buffer.Pop();
                     return num1 % num2;
                 }
             },
@@ -49,7 +49,7 @@ public class Calculate : InteractionModuleBase<SocketInteractionContext>
             {"tg", () => Math.Tan(_buffer.Pop())},{
                 "cotg", () =>
                 {
-                    double num = _buffer.Pop();
+                    var num = _buffer.Pop();
                     if (num == 0) ThrowException("Cotg() cannot be zero");
                     return Math.Cos(num) / Math.Sin(num);
                 }
@@ -57,21 +57,21 @@ public class Calculate : InteractionModuleBase<SocketInteractionContext>
             {"pow", () => Math.Pow(_buffer.Pop(), 2)},{
                 "sqrt", () =>
                 {
-                    double num = _buffer.Pop();
+                    var num = _buffer.Pop();
                     if (num < 0) ThrowException("Sqrt() cannot be < 0");
                     return Math.Sqrt(num);
                 }
             },{
                 "log", () =>
                 {
-                    double num = _buffer.Pop();
+                    var num = _buffer.Pop();
                     if (num <= 0) ThrowException("Log() cannot be ≤ 0");
                     return Math.Log10(num);
                 }
             },{
                 "ln", () =>
                 {
-                    double num = _buffer.Pop();
+                    var num = _buffer.Pop();
                     if (num <= 0) ThrowException("Ln() cannot be ≤ 0");
                     return Math.Log(num);
                 }
@@ -86,7 +86,7 @@ public class Calculate : InteractionModuleBase<SocketInteractionContext>
             try
             {
                 InitDict();
-                foreach (dynamic item in commands)
+                foreach (var item in commands)
                 {
                     _buffer.Push(_operations.ContainsKey(Convert.ToString(item))
                         ? (double)_operations[Convert.ToString(item)]()
@@ -122,7 +122,7 @@ public class Calculate : InteractionModuleBase<SocketInteractionContext>
             // fix for negative numbers -> adds 0 if '-' is after '(' or at the start of infix 
             if (infix[0] == '-')
                 infix.Insert(0, '0');
-            for (int i = 1; i < infix.Length; i++)
+            for (var i = 1; i < infix.Length; i++)
             {
                 if (infix[i] == '-' && infix[i - 1] == '(')
                     infix.Insert(i, '0');
@@ -135,7 +135,7 @@ public class Calculate : InteractionModuleBase<SocketInteractionContext>
                 else if (double.TryParse(item.Value,
                              NumberStyles.Any,
                              CultureInfo.InvariantCulture,
-                             out double d)) // number
+                             out var d)) // number
                     postfix.Add(d);
                 else if (item.Value == ")") // pushes all of stack to postfix until '(' is met
                 {

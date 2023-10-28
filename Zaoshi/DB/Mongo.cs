@@ -1,45 +1,42 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
-using Zaoshi.Mongo;
+using System.Reflection;
 
 namespace Zaoshi.DB;
 
+/// <summary>
+///     Class for managing MongoDB database
+/// </summary>
 public static class Mongo
 {
-    private static readonly MongoClient _client;
-    private static readonly IMongoDatabase _database;
+    private static readonly IMongoDatabase database;
 
     static Mongo()
     {
-        _client = new MongoClient(Config.GetConnectionString());
-        _database = _client.GetDatabase("Zaoshi");
-    }
+        var client = new MongoClient(Config.GetConnectionString());
+        database = client.GetDatabase("Zaoshi");
 
-    private static void BuildDatabase()
-    {
-        foreach (var item in typeof(Collections).GetMembers())
+        // create a collection for each DB type
+        foreach (var item in AppDomain.CurrentDomain.GetAssemblies()
+                     .SelectMany(a => a.GetTypes())
+                     .Where(t => t is{IsClass: true, IsAbstract: true} && t.BaseType == typeof(Collections)))
         {
-            var t = item.GetType();
-            var collection = typeof(Mongo).GetMethod("GetCollection")!.MakeGenericMethod(t);
-            if (collection.Invoke(null, null) == null)
-            {
-                Console.WriteLine("Collection not present");
-            }
+            var method = typeof(Cache).GetMethod("GetCollection", BindingFlags.NonPublic | BindingFlags.Static)!.MakeGenericMethod(item);
+            var collection = (dynamic)method.Invoke(null, null)!;
+            if (database.ListCollectionNames().ToList().Contains(collection.CollectionNamespace.CollectionName))
+                continue;
+            Console.WriteLine($"Creating DB Collection '{collection.CollectionNamespace.CollectionName}'");
+            database.CreateCollection(collection.CollectionNamespace.CollectionName);
         }
     }
 
-    public static IMongoCollection<T> GetCollection<T>() where T : Collections => _database.GetCollection<T>(typeof(T).Name);
-
-    public static void Update()
+    public static void AddNewToCollection<T>(string collectionName, ulong serverId) where T : Collections, new()
     {
-        // var client = new MongoClient("mongodb://localhost:27017");
-        // var database = client.GetDatabase("mojeDatabaze");
-        // var kolekce = database.GetCollection<Collections.Counting>("mojeKolekce");
-        //
-        // var filter = MongoDB.Driver.Builders<Zaoshi>.Filter.Empty;
-        // var update = MongoDB.Driver.Builders<Zaoshi>.Update.Set(x => x.Count, 5);
-        //
-        // var updateResult = kolekce.UpdateMany(filter, update);
-        //
-        // Console.WriteLine($"Počet aktualizovaných dokumentů: {updateResult.ModifiedCount}");
+        var bson = new T().ToBsonDocument().Set("_id", (long)serverId);
+        database.GetCollection<BsonDocument>(collectionName).InsertOne(bson);
     }
+
+    public static IMongoCollection<BsonDocument> GetCollection<T>() where T : Collections => database.GetCollection<BsonDocument>(typeof(T).Name);
+
+    public static BsonDocument? GetBsonDocument(string collectionName, ulong serverId) => database.GetCollection<BsonDocument>(collectionName).Find(Builders<BsonDocument>.Filter.Eq("_id", serverId)).FirstOrDefault();
 }

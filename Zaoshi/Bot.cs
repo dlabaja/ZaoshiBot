@@ -2,22 +2,27 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Zaoshi.Exceptions;
 
 namespace Zaoshi;
 
+/// <summary>
+///     Main class of the bot
+/// </summary>
 public class Bot
 {
     private readonly IServiceProvider _services;
 
     private readonly DiscordSocketConfig _socketConfig = new DiscordSocketConfig{
-        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
+        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers | GatewayIntents.MessageContent,
         AlwaysDownloadUsers = true
     };
 
     private Bot()
     {
+        AppDomain.CurrentDomain.UnhandledException += (_, args) => throw new FatalException((Exception)args.ExceptionObject);
+
         Console.WriteLine($"Debug mode: {IsDebug()}");
-        Config.LoadConfig();
         _services = new ServiceCollection()
             .AddSingleton(_socketConfig)
             .AddSingleton<DiscordSocketClient>()
@@ -37,6 +42,7 @@ public class Bot
 
         client.Log += LogAsync;
         client.MessageReceived += Events.OnMessageReceived;
+        client.JoinedGuild += Events.OnNewGuild;
 
         // Here we can initialize the service that will register and execute our commands
         await _services.GetRequiredService<InteractionHandler>()

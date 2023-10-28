@@ -1,14 +1,28 @@
-using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace Zaoshi.Mongo;
+#pragma warning disable 1591
 
+namespace Zaoshi.DB;
+
+/// <summary>
+///     All of MongoDB Collections types
+/// </summary>
 public abstract class Collections
 {
-    public abstract class Counting
+    public class ServerSettings : Collections
     {
-        public ObjectId _id { get; set; }
-        public long uid { get; set; }
-        public long channelId { get; set; }
-        public int count { get; set; }
+        [BsonId]
+        public ulong _id { get; set; }
+
+        public ulong CountingChannelId { get; set; } = 0;
+    }
+
+    public class Counting : Collections
+    {
+        [BsonId]
+        public ulong _id { get; set; }
+
+        public int Count { get; set; } = 0;
+        public bool IsAscending { get; set; } = true;
     }
 }
