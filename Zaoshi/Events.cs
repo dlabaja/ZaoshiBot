@@ -21,8 +21,8 @@ public static class Events
 
         if (new Random().Next(RandomReactions.reactionChance) == 0)
             await RandomReactions.PlaceReaction(arg);
-        
-        if (arg.Channel.Id == (ulong)Cache.ServerSettings.GetOrFetch<Collections.ServerSettings>(serverId)[nameof(Collections.ServerSettings.CountingChannelId)].ToInt64())
+
+        if (arg.Channel.Id == (ulong)Cache.ServerSettings.GetOrFetch<Collections.ServerSettings>(serverId)[nameof(Collections.ServerSettings.countingChannelId)].ToInt64())
         {
             Counting.OnCount(serverId, arg);
         }

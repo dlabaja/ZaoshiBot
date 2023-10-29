@@ -12,17 +12,16 @@ public abstract class Collections
     public class ServerSettings : Collections
     {
         [BsonId]
-        public ulong _id { get; set; }
-
-        public ulong CountingChannelId { get; set; } = 0;
+        public ulong _id;
+        public ulong countingChannelId = 0;
     }
 
     public class Counting : Collections
     {
         [BsonId]
-        public ulong _id { get; set; }
-
-        public int Count { get; set; } = 0;
-        public bool IsAscending { get; set; } = true;
+        public ulong _id;
+        public int count = 0;
+        public bool isAscending = true;
+        public ulong lastUserId = 0;
     }
 }

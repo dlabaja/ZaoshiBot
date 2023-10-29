@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using MongoDB.Bson;
 using Zaoshi.Attributes;
 using Zaoshi.DB;
 using static Zaoshi.DB.Collections;
@@ -21,10 +22,10 @@ public class Counting : InteractionModuleBase<SocketInteractionContext>
     public async Task SetChannel(SocketTextChannel channel)
     {
         Cache.ServerSettings.UpdateOrAdd<ServerSettings>(channel.Guild.Id,
-            nameof(ServerSettings.CountingChannelId),
+            nameof(ServerSettings.countingChannelId),
             channel.Id);
 
-        var currentCount = Cache.Counting.GetOrFetch<Collections.Counting>(channel.Guild.Id)[nameof(Collections.Counting.Count)].ToInt32();
+        var currentCount = Cache.Counting.GetOrFetch<Collections.Counting>(channel.Guild.Id)[nameof(Collections.Counting.count)].ToInt32();
 
         await Context.Guild.GetTextChannel(channel.Id).SendMessageAsync($"This is the new counting channel. The first number is {currentCount}");
         await RespondAsync("Channel set");
@@ -35,10 +36,10 @@ public class Counting : InteractionModuleBase<SocketInteractionContext>
     public async Task SetCount(int count, Order order = Order.Ascending)
     {
         Cache.Counting.UpdateOrAdd<Collections.Counting>(Context.Guild.Id,
-            nameof(Collections.Counting.Count),
+            nameof(Collections.Counting.count),
             count);
         Cache.Counting.UpdateOrAdd<Collections.Counting>(Context.Guild.Id,
-            nameof(Collections.Counting.IsAscending),
+            nameof(Collections.Counting.isAscending),
             order == Order.Ascending);
         await RespondAsync($"Count set to {count}, order is now {order.ToString()}");
     }
@@ -46,8 +47,8 @@ public class Counting : InteractionModuleBase<SocketInteractionContext>
     [SlashCommand("get-count", "Gets current count")]
     public async Task GetCount()
     {
-        var isAscending = Cache.Counting.GetOrFetch<Collections.Counting>(Context.Guild.Id)[nameof(Collections.Counting.IsAscending)].ToBoolean();
-        var currentCount = Cache.Counting.GetOrFetch<Collections.Counting>(Context.Guild.Id)[nameof(Collections.Counting.Count)].ToInt32();
+        var isAscending = Cache.Counting.GetOrFetch<Collections.Counting>(Context.Guild.Id)[nameof(Collections.Counting.isAscending)].ToBoolean();
+        var currentCount = Cache.Counting.GetOrFetch<Collections.Counting>(Context.Guild.Id)[nameof(Collections.Counting.count)].ToInt32();
 
         await RespondAsync($"Current count is {currentCount}, order is {(isAscending ? "Ascending" : "Descending")}", ephemeral: true);
     }
@@ -59,8 +60,8 @@ public class Counting : InteractionModuleBase<SocketInteractionContext>
     /// <param name="msg"></param>
     public static void OnCount(ulong serverId, SocketMessage msg)
     {
-        var isAscending = Cache.Counting.GetOrFetch<Collections.Counting>(serverId)[nameof(Collections.Counting.IsAscending)].ToBoolean();
-        var currentCount = Cache.Counting.GetOrFetch<Collections.Counting>(serverId)[nameof(Collections.Counting.Count)].ToInt32();
+        var isAscending = Cache.Counting.GetOrFetch<Collections.Counting>(serverId).GetValue(nameof(Collections.Counting.isAscending)).ToBoolean();
+        var currentCount = Cache.Counting.GetOrFetch<Collections.Counting>(serverId)[nameof(Collections.Counting.count)].ToInt32();
         var addedNum = isAscending ? 1 : -1;
 
         if (!int.TryParse(msg.Content, out var userCount) || userCount != currentCount + addedNum)
@@ -71,7 +72,7 @@ public class Counting : InteractionModuleBase<SocketInteractionContext>
 
         msg.AddReactionAsync(Emoji.Parse("✅"));
         Cache.Counting.UpdateOrAdd<Collections.Counting>(serverId,
-            nameof(Collections.Counting.Count),
+            nameof(Collections.Counting.count),
             currentCount + addedNum);
     }
 }

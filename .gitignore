@@ -1,6 +1,7 @@
 config.json
 /published
 /publish.sh
+/.idea
 
 # Common IntelliJ Platform excludes
 

@@ -1,5 +1,7 @@
+using MongoDB.Bson;
+
 namespace Zaoshi.Utils;
 
-public static class Utils
+public class Utils
 {
 }

@@ -78,7 +78,7 @@ public static class Cache
             }
             catch {}
 
-            Mongo.AddNewToCollection<T>(typeof(T).Name, serverId);
+            Mongo.InsertNewToCollection<T>(typeof(T).Name, serverId);
             i++;
         }
 

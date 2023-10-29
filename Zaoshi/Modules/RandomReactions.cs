@@ -1,3 +1,4 @@
+using Discord.Net;
 using Discord.WebSocket;
 
 namespace Zaoshi.Modules;
@@ -11,7 +12,11 @@ public static class RandomReactions
         if (msg.Channel is SocketGuildChannel guildChannel)
         {
             var emotes = guildChannel.Guild.Emotes;
-            await msg.AddReactionAsync(emotes.ToList()[new Random().Next(emotes.Count)]);
+            try
+            {
+                await msg.AddReactionAsync(emotes.ToList()[new Random().Next(emotes.Count)]);
+            }
+            catch (HttpException) {}
         }
     }
 }
