@@ -16,7 +16,8 @@ public static class Events
     /// <param name="arg"></param>
     public async static Task OnMessageReceived(SocketMessage arg)
     {
-        // if (arg.Author.IsBot || arg.Author.IsWebhook) return;
+        if (arg.Author.IsBot || arg.Author.IsWebhook) return;
+
         var serverId = (arg.Channel as SocketGuildChannel)!.Guild.Id;
 
         if (new Random().Next(RandomReactions.reactionChance) == 0)
@@ -28,5 +29,11 @@ public static class Events
         }
     }
 
-    public static Task OnNewGuild(SocketGuild arg) => throw new NotImplementedException();
+    /// <summary>
+    ///     Fires when the bot joins new server
+    /// </summary>
+    /// <param name="arg"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public static Task OnGuildJoin(SocketGuild arg) => throw new NotImplementedException();
 }

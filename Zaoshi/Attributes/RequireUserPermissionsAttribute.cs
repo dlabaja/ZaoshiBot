@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Interactions;
-using Zaoshi.Exceptions;
+
+#pragma warning disable CS1591
 
 namespace Zaoshi.Attributes;
 

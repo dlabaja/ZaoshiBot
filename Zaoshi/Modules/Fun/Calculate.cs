@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
+#pragma warning disable CS1591
+
 namespace Zaoshi.Modules.Fun;
 
 public class Calculate : InteractionModuleBase<SocketInteractionContext>

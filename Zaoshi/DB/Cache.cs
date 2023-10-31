@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Zaoshi.Exceptions;
 using static Zaoshi.DB.Collections;
 
 namespace Zaoshi.DB;
@@ -82,7 +81,7 @@ public static class Cache
             i++;
         }
 
-        throw new FatalException("Unable to get data from DB");
+        throw new Exception("Unable to get data from DB");
     }
 
 #pragma warning disable CS1591

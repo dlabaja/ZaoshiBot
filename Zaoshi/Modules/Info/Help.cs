@@ -2,6 +2,8 @@ using Discord;
 using Discord.Interactions;
 using System.Reflection;
 
+#pragma warning disable CS1591
+
 namespace Zaoshi.Modules.Info;
 
 public class Help : InteractionModuleBase<SocketInteractionContext>

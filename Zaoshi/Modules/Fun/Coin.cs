@@ -1,5 +1,7 @@
 using Discord.Interactions;
 
+#pragma warning disable CS1591
+
 namespace Zaoshi.Modules.Fun;
 
 public class Coin : InteractionModuleBase<SocketInteractionContext>

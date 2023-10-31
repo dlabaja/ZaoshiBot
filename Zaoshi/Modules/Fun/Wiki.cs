@@ -2,6 +2,8 @@ using Discord.Interactions;
 using Genbox.Wikipedia;
 using Genbox.Wikipedia.Enums;
 
+#pragma warning disable CS1591
+
 namespace Zaoshi.Modules.Fun;
 
 public class Wiki : InteractionModuleBase<SocketInteractionContext>

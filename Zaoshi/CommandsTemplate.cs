@@ -1,5 +1,6 @@
 /*
 using Discord.Interactions;
+#pragma warning disable CS1591
 
 namespace Zaoshi;
 
@@ -12,6 +13,7 @@ public class Command : InteractionModuleBase<SocketInteractionContext>
     }
 }
 */
+
 
 
 

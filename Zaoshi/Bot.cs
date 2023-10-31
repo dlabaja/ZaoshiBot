@@ -2,7 +2,6 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using Zaoshi.Exceptions;
 
 namespace Zaoshi;
 
@@ -20,7 +19,7 @@ public class Bot
 
     private Bot()
     {
-        AppDomain.CurrentDomain.UnhandledException += (_, args) => throw new FatalException((Exception)args.ExceptionObject);
+        AppDomain.CurrentDomain.UnhandledException += (_, args) => throw ((Exception)args.ExceptionObject);
 
         Console.WriteLine($"Debug mode: {IsDebug()}");
         _services = new ServiceCollection()
@@ -42,17 +41,14 @@ public class Bot
 
         client.Log += LogAsync;
         client.MessageReceived += Events.OnMessageReceived;
-        client.JoinedGuild += Events.OnNewGuild;
+        client.JoinedGuild += Events.OnGuildJoin;
 
-        // Here we can initialize the service that will register and execute our commands
         await _services.GetRequiredService<InteractionHandler>()
             .InitializeAsync();
 
-        // Bot token can be provided from the Configuration object we set up earlier
-        await client.LoginAsync(TokenType.Bot, IsDebug() ? Config.GetDebugToken() : Config.GetToken());
+        await client.LoginAsync(TokenType.Bot, IsDebug() ? Config.debugToken : Config.token);
         await client.StartAsync();
 
-        // Never quit the program until manually forced to.
         await Task.Delay(Timeout.Infinite);
     }
 
@@ -62,6 +58,10 @@ public class Bot
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    ///     Debug token usage
+    /// </summary>
+    /// <returns>True if the bot currently uses debug token</returns>
     public static bool IsDebug()
     {
         #if DEBUG

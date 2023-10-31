@@ -5,12 +5,21 @@ using System.Reflection;
 
 namespace Zaoshi;
 
+/// <summary>
+///     Handles Discord interactions
+/// </summary>
 public class InteractionHandler
 {
     private readonly DiscordSocketClient _client;
     private readonly InteractionService _handler;
     private readonly IServiceProvider _services;
 
+    /// <summary>
+    ///     Creates a new interaction handler
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="handler"></param>
+    /// <param name="services"></param>
     public InteractionHandler(DiscordSocketClient client, InteractionService handler, IServiceProvider services)
     {
         _client = client;
@@ -18,6 +27,9 @@ public class InteractionHandler
         _services = services;
     }
 
+    /// <summary>
+    ///     Initializes interaction handler
+    /// </summary>
     public async Task InitializeAsync()
     {
         // Process when the client is ready, so we can register our commands.
@@ -29,19 +41,6 @@ public class InteractionHandler
 
         // Process the InteractionCreated payloads to execute Interactions commands
         _client.InteractionCreated += HandleInteraction;
-        _handler.InteractionExecuted += HandleInteractionExecuted;
-    }
-
-    // Returns any error to the user
-    async private static Task HandleInteractionExecuted(ICommandInfo commandInfo, IInteractionContext context, IResult result)
-    {
-        if (result.ErrorReason == null) return;
-        var errorAliases = new Dictionary<string, string>{
-            {"The server responded with error 50013: Missing Permissions", "Missing Permissions"},
-            {"Offset cannot be more than 28 days from the current date. (Parameter 'span')", "Maximum pause time is 28 days"}
-        };
-
-        await context.Interaction.RespondAsync(errorAliases.TryGetValue(result.ErrorReason, out var error) ? error : result.ErrorReason, ephemeral: true);
     }
 
     private static Task LogAsync(LogMessage log)

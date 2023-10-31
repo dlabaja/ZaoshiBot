@@ -13,7 +13,7 @@ public static class Mongo
 
     static Mongo()
     {
-        var client = new MongoClient(Config.GetConnectionString());
+        var client = new MongoClient(Config.connectionString);
         database = client.GetDatabase("Zaoshi");
 
         // create a collection for each DB type
