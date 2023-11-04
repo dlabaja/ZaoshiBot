@@ -19,7 +19,7 @@ Fun commands
 - Search YT videos on the fly
 - Search Wikipedia
 - Calculate any expression
-- Throw a coin, generate a randm number, etc.
+- Throw a coin, generate a random number, etc.
 
 Minigames
 - Counting
