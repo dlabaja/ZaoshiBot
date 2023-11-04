@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using static Zaoshi.DB.Collections;
 
 namespace Zaoshi.DB;
 
@@ -12,24 +12,14 @@ public static class Cache
 {
     private static readonly Dictionary<MemoryCache, MemoryCacheEntryOptions> cacheToEntryOptions = new Dictionary<MemoryCache, MemoryCacheEntryOptions>();
 
-    static Cache()
-    {
-
-    }
-
-    private static MemoryCache SetupCache<T>(int slidingExpirationSecs = 30, int absoluteExpirationSecs = 600) where T : Collections
+    private static MemoryCache SetupCache(int slidingExpirationSecs = 30, int absoluteExpirationSecs = 300)
     {
         var cache = new MemoryCache(new MemoryCacheOptions());
+
         var entryOptions = new MemoryCacheEntryOptions{
             SlidingExpiration = TimeSpan.FromSeconds(slidingExpirationSecs),
             AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(absoluteExpirationSecs)
         };
-
-        entryOptions.RegisterPostEvictionCallback((serverId, value, reason, _) =>
-        {
-            if (reason == EvictionReason.Expired)
-                Mongo.GetCollection<T>().ReplaceOne(Builders<BsonDocument>.Filter.Eq("_id", serverId), value.ToBsonDocument());
-        });
 
         cacheToEntryOptions.Add(cache, entryOptions);
 
@@ -37,18 +27,34 @@ public static class Cache
     }
 
     /// <summary>
-    ///     Updates data in cache
+    ///     Updates one field in cache and saves it to database
     /// </summary>
     /// <param name="cache"></param>
     /// <param name="serverId"></param>
     /// <param name="field"></param>
     /// <param name="value"></param>
-    public static void UpdateOrAdd<T>(this MemoryCache cache, ulong serverId, string field, object value) where T : Collections, new()
-    {
-        var data = cache.GetOrFetch<T>(serverId);
+    public static void UpdateOrAdd<T>(this MemoryCache cache, ulong serverId, string field, object value) where T : Collections, new() => cache.UpdateOrAdd<T>(serverId, new Dictionary<string, object>{{field, value}});
 
-        data.Set(field, BsonValue.Create(value));
+    /// <summary>
+    ///     Updates multiple fields at once in cache and saves it to database
+    /// </summary>
+    /// <param name="cache"></param>
+    /// <param name="serverId"></param>
+    /// <param name="fieldsAndValues"></param>
+    /// <typeparam name="T"></typeparam>
+    public static void UpdateOrAdd<T>(this MemoryCache cache, ulong serverId, Dictionary<string, object> fieldsAndValues) where T : Collections, new()
+    {
+        var data = cache.GetOrFetch<T>(serverId).ToBsonDocument();
+
+        var updates = new List<UpdateDefinition<BsonDocument>>();
+        foreach (var item in fieldsAndValues)
+        {
+            data.Set(item.Key, BsonValue.Create(item.Value));
+            updates.Add(Builders<BsonDocument>.Update.Set(item.Key, BsonValue.Create(item.Value)));
+        }
+
         cache.Set(serverId, data.ToBsonDocument(), cacheToEntryOptions[cache]);
+        new Thread(_ => Mongo.GetCollection<T>().UpdateOneAsync(Builders<BsonDocument>.Filter.Eq("_id", serverId), Builders<BsonDocument>.Update.Combine(updates))).Start();
     }
 
     /// <summary>
@@ -57,13 +63,13 @@ public static class Cache
     /// <param name="cache"></param>
     /// <param name="serverId"></param>
     /// <returns></returns>
-    public static BsonDocument GetOrFetch<T>(this IMemoryCache cache, ulong serverId) where T : Collections, new()
+    public static T GetOrFetch<T>(this IMemoryCache cache, ulong serverId) where T : Collections, new()
     {
         var i = 0;
         while (i < 3)
         {
             if (cache.TryGetValue(serverId, out BsonDocument? cachedData) && cachedData != null)
-                return cachedData;
+                return BsonSerializer.Deserialize<T>(cachedData);
 
             try
             {
@@ -72,7 +78,7 @@ public static class Cache
                 if (bson != null)
                 {
                     cache.Set(serverId, bson);
-                    return bson;
+                    return BsonSerializer.Deserialize<T>(bson);
                 }
             }
             catch {}
@@ -85,7 +91,8 @@ public static class Cache
     }
 
 #pragma warning disable CS1591
-    public static readonly MemoryCache ServerSettings = SetupCache<ServerSettings>(300);
-    public static readonly MemoryCache Counting = SetupCache<Counting>();
+    public static readonly MemoryCache ServerSettings = SetupCache(180, 900);
+    public static readonly MemoryCache Counting = SetupCache();
+    public static readonly MemoryCache WordFootball = SetupCache();
 #pragma warning restore CS1591
 }

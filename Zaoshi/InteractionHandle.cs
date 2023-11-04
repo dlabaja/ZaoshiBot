@@ -43,11 +43,8 @@ public class InteractionHandler
         _client.InteractionCreated += HandleInteraction;
     }
 
-    private static Task LogAsync(LogMessage log)
-    {
-        Console.WriteLine(log);
-        return Task.CompletedTask;
-    }
+    private static Task LogAsync(LogMessage log) =>
+        Task.CompletedTask;
 
     async private Task ReadyAsync()
     {

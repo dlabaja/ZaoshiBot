@@ -9,17 +9,17 @@ namespace Zaoshi;
 public static class Config
 {
     /// <summary>
-    ///     Guilds with instant command registration, for testing purposes only
+    ///     Bot token
     /// </summary>
-    public static readonly ulong[] testGuilds;
+    public static readonly string token;
     /// <summary>
     ///     Second token, use for debugging purposes (can be empty)
     /// </summary>
     public static readonly string debugToken;
     /// <summary>
-    ///     Bot token
+    ///     Guilds with instant command registration, for testing purposes only
     /// </summary>
-    public static readonly string token;
+    public static readonly ulong[] testGuilds;
     /// <summary>
     ///     Connection string to MongoDB database
     /// </summary>
@@ -31,14 +31,9 @@ public static class Config
         if (!File.Exists(path)) throw new Exception("Cannot find 'config.json' file, make sure it's next to the bot executable");
 
         var json = JsonNode.Parse(File.ReadAllText(path))!;
-        token = json["token"]?.GetValue<string>() ?? throw new Exception("config.json: Missing token");
-        debugToken = json["debugToken"]?.GetValue<string>() ?? "";
-        testGuilds = json["testGuilds"].Deserialize<ulong[]>() ?? new ulong[]{};
-        connectionString = json["connectionString"].Deserialize<string>() ?? throw new Exception("config.json: Missing database connection string. Get one at https://www.mongodb.com/ or self-host the database yourself");
-
-        if (string.IsNullOrEmpty(token))
-        {
-            throw new Exception("Token not found - add it into your config.json");
-        }
+        token = json[nameof(token)]?.GetValue<string>() ?? throw new Exception("config.json: Missing token");
+        debugToken = json[nameof(debugToken)]?.GetValue<string>() ?? "";
+        testGuilds = json[nameof(testGuilds)].Deserialize<ulong[]>() ?? new ulong[]{};
+        connectionString = json[nameof(connectionString)].Deserialize<string>() ?? throw new Exception("config.json: Missing database connection string. Get one at https://www.mongodb.com/ or self-host the database yourself");
     }
 }

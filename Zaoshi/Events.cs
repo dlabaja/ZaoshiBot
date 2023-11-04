@@ -23,9 +23,14 @@ public static class Events
         if (new Random().Next(RandomReactions.reactionChance) == 0)
             await RandomReactions.PlaceReaction(arg);
 
-        if (arg.Channel.Id == (ulong)Cache.ServerSettings.GetOrFetch<Collections.ServerSettings>(serverId)[nameof(Collections.ServerSettings.countingChannelId)].ToInt64())
+        var serverSettings = Cache.ServerSettings.GetOrFetch<Collections.ServerSettings>(serverId);
+        if (arg.Channel.Id == serverSettings.countingChannelId)
         {
             Counting.OnCount(serverId, arg);
+        }
+        else if (arg.Channel.Id == serverSettings.wordFootballChannelId)
+        {
+            WordFootball.OnWord(serverId, arg);
         }
     }
 

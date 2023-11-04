@@ -14,6 +14,7 @@ public abstract class Collections
         [BsonId]
         public ulong _id;
         public ulong countingChannelId = 0;
+        public ulong wordFootballChannelId = 0;
     }
 
     public class Counting : Collections
@@ -22,6 +23,14 @@ public abstract class Collections
         public ulong _id;
         public int count = 0;
         public bool isAscending = true;
+        public ulong lastUserId = 0;
+    }
+
+    public class WordFootball : Collections
+    {
+        [BsonId]
+        public ulong _id;
+        public char lastLetter = default;
         public ulong lastUserId = 0;
     }
 }

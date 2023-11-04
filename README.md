@@ -8,6 +8,7 @@ To run it yourself, create config.json file next to the executable and put this 
 {
   "token": "bot token",
   "debugToken": "token for debug version of the bot (optional)",
-  "testGuilds": ["uids of guilds you want to debug in (int64) (optional)"]
+  "testGuilds": ["uids of guilds you want to debug in (int64) (optional)"],
+  "connectionString": "connection string for your MongoDB database, visit https://www.mongodb.com for more info"
 }
 ```
