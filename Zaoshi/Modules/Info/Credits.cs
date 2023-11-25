@@ -7,7 +7,7 @@ namespace Zaoshi.Modules.Info;
 
 public class Credits : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("credits", "Shows people who made the bot")]
+    [SlashCommand("credits", "Shows creators of the bot")]
     public async Task Command()
     {
         var embed = new EmbedBuilder{

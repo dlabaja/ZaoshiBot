@@ -41,6 +41,7 @@ public class Help : InteractionModuleBase<SocketInteractionContext>
             }
         }
 
-        await RespondAsync(embed: embed.Build());
+        await RespondAsync(embed: embed
+            .WithTitle("Help").Build());
     }
 }

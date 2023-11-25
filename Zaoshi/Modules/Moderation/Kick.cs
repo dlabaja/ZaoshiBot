@@ -1,25 +1,21 @@
-using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Zaoshi.Attributes;
 
 #pragma warning disable CS1591
 
 namespace Zaoshi.Modules.Moderation;
 
-public class Kick : InteractionModuleBase<SocketInteractionContext>
+public static class Kick
 {
-    [SlashCommand("kick", "Kicks a user from the server")]
-    [RequireUserPermissions(new[]{GuildPermission.Administrator, GuildPermission.KickMembers, GuildPermission.BanMembers})]
-    public async Task Command(SocketUser user, string reason = "No reason given")
+    public async static Task KickCmd(SocketInteractionContext context, SocketUser user, string reason = "No reason given")
     {
-        if (user == Context.User)
+        if (user == context.User)
         {
-            await RespondAsync("You cannot kick yourself");
+            await context.Interaction.RespondAsync("You cannot kick yourself");
             return;
         }
 
-        await Context.Guild.GetUser(user.Id).KickAsync(reason);
-        await RespondAsync($"{user.Username} kicked successfully");
+        await context.Guild.GetUser(user.Id).KickAsync(reason);
+        await context.Interaction.RespondAsync($"{user.Username} kicked successfully");
     }
 }

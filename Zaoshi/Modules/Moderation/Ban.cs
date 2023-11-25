@@ -1,25 +1,21 @@
 using Discord.Interactions;
 using Discord.WebSocket;
-using Zaoshi.Attributes;
-using static Discord.GuildPermission;
 
 #pragma warning disable CS1591
 
 namespace Zaoshi.Modules.Moderation;
 
-public class Ban : InteractionModuleBase<SocketInteractionContext>
+public static class Ban
 {
-    [SlashCommand("ban", "Bans a user from the server")]
-    [RequireUserPermissions(new[]{Administrator, BanMembers})]
-    public async Task Command(SocketUser user, int pruneDays = 0, string reason = "No reason given")
+    public async static Task BanCmd(SocketInteractionContext context, SocketUser user, int pruneDays = 0, string reason = "No reason given")
     {
-        if (user == Context.User)
+        if (user == context.User)
         {
-            await RespondAsync("You cannot ban yourself");
+            await context.Interaction.RespondAsync("You cannot ban yourself");
             return;
         }
 
-        await Context.Guild.AddBanAsync(user, pruneDays, reason);
-        await RespondAsync($"{user.Username} banned successfully");
+        await context.Guild.AddBanAsync(user, pruneDays, reason);
+        await context.Interaction.RespondAsync($"{user.Username} banned successfully");
     }
 }
