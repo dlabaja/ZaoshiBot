@@ -20,6 +20,7 @@ Fun commands
 - Search Wikipedia
 - Calculate any expression
 - Throw a coin, generate a random number, etc.
+- Manipulate with images in many fun ways
 
 Minigames
 - Counting
@@ -31,3 +32,4 @@ Moderation
 Supports Discord Interactions\
 Pretty fast thanks to MongoDB and caching system in place\
 Fully open source and editable (you can see everything except my token key :))
+Available on all platforms
